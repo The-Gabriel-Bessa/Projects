@@ -11,8 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 libglib2.0-0 ninja-build wget && \
     rm -rf /var/lib/apt/lists/*
 
-RUN ln -sf /usr/bin/python3 /usr/local/bin/python && \
-    python3 -m pip install --upgrade pip setuptools
+RUN ln -sf /usr/bin/python3 /usr/local/bin/python
 
 WORKDIR /app
 
