@@ -6,9 +6,6 @@
     "containerDiskInGb": 50,
     "gpuTypes": [
       "NVIDIA GeForce RTX 4090"
-    ],
-    "allowedCudaVersions": [
-      "12.4"
     ]
   }
 }

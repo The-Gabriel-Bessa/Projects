@@ -1,28 +1,38 @@
-FROM runpod/serverless-pytorch:1.24.0-pytorch2.5.0-cuda12.4.0
+FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04
 
+ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 ENV HF_HUB_DISABLE_TELEMETRY=1
 ENV PIP_NO_CACHE_DIR=1
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.12 python3.12-venv python3-pip git build-essential \
+    libgl1 libglib2.0-0 ninja-build wget && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
+    ln -sf /usr/bin/python3.12 /usr/local/bin/python && \
+    python3 -m pip install --upgrade pip setuptools
+
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git build-essential ninja-build libgl1 libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install --no-cache-dir --upgrade \
+    "torch==2.7.0" --index-url https://download.pytorch.org/whl/cu128
 
 RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git /app/ComfyUI
 
-RUN pip install --no-cache-dir -r /app/ComfyUI/requirements.txt
+RUN python3 -m pip install --no-cache-dir -r /app/ComfyUI/requirements.txt
 
 RUN git clone --depth 1 https://github.com/visualbruno/ComfyUI-Trellis2.git /app/ComfyUI/custom_nodes/ComfyUI-Trellis2
 
-RUN pip install --no-cache-dir -r /app/ComfyUI/custom_nodes/ComfyUI-Trellis2/requirements.txt || true
+RUN python3 -m pip install --no-cache-dir -r /app/ComfyUI/custom_nodes/ComfyUI-Trellis2/requirements.txt || true
 
-RUN find /app/ComfyUI/custom_nodes/ComfyUI-Trellis2/wheels -name "*.whl" -exec pip install --no-cache-dir {} + || true
+RUN find /app/ComfyUI/custom_nodes/ComfyUI-Trellis2/wheels/Linux/Torch270 -name "*.whl" \
+    -exec python3 -m pip install --no-cache-dir {} + || true
 
-RUN pip install --no-cache-dir comfy-cli huggingface_hub runpod
+RUN python3 -m pip install --no-cache-dir comfy-cli huggingface_hub runpod
 
-RUN python -c " \
+RUN python3 -c " \
 from huggingface_hub import snapshot_download; \
 import os; \
 os.makedirs('/app/ComfyUI/models/Pixal3D-GGUF', exist_ok=True); \
@@ -31,8 +41,6 @@ snapshot_download('Aero-Ex/Pixal3D-GGUF', local_dir='/app/ComfyUI/models/Pixal3D
 os.makedirs('/app/ComfyUI/models/dinov3', exist_ok=True); \
 snapshot_download('Aero-Ex/Dinov3', local_dir='/app/ComfyUI/models/dinov3'); \
 "
-
-RUN pip install --no-cache-dir --upgrade "torch==2.7.0" "torchvision==0.22.0" --index-url https://download.pytorch.org/whl/cu124
 
 COPY . /app
 
