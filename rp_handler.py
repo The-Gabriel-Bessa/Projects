@@ -1,6 +1,7 @@
 import os, sys, time, uuid, base64, subprocess, threading
 from pathlib import Path
 import requests
+import runpod
 
 COMFY_DIR = "/app/ComfyUI"
 COMFY_PORT = 8188
@@ -99,6 +100,4 @@ def handler(event):
     return {"output": {"glb_base64": b64, "glb_path": str(glb), "filename": glb.name}}
 
 
-if __name__ == "__main__":
-    import runpod
-    runpod.serverless.start({"handler": handler})
+runpod.serverless.start({"handler": handler})
