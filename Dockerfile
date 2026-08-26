@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 ENV HF_HUB_DISABLE_TELEMETRY=1
 ENV PIP_NO_CACHE_DIR=1
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-venv python3-pip python3-dev git build-essential \
