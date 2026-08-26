@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04
+FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -6,12 +6,11 @@ ENV HF_HUB_DISABLE_TELEMETRY=1
 ENV PIP_NO_CACHE_DIR=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 python3.12-venv python3-pip git build-essential \
+    python3 python3-venv python3-pip python3-dev git build-essential \
     libgl1 libglib2.0-0 ninja-build wget && \
     rm -rf /var/lib/apt/lists/*
 
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
-    ln -sf /usr/bin/python3.12 /usr/local/bin/python && \
+RUN ln -sf /usr/bin/python3 /usr/local/bin/python && \
     python3 -m pip install --upgrade pip setuptools
 
 WORKDIR /app
