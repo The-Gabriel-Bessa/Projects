@@ -27,19 +27,11 @@ RUN git clone --depth 1 https://github.com/visualbruno/ComfyUI-Trellis2.git /app
 RUN python3 -m pip install --no-cache-dir -r /app/ComfyUI/custom_nodes/ComfyUI-Trellis2/requirements.txt || true
 
 RUN find /app/ComfyUI/custom_nodes/ComfyUI-Trellis2/wheels/Linux/Torch270 -name "*.whl" \
-    -exec python3 -m pip install --no-cache-dir {} + || true
+    -exec python3 -m pip install --no-cache-dir --no-deps {} + || true
 
 RUN python3 -m pip install --no-cache-dir comfy-cli huggingface_hub runpod
 
-RUN python3 -c " \
-from huggingface_hub import snapshot_download; \
-import os; \
-os.makedirs('/app/ComfyUI/models/Pixal3D-GGUF', exist_ok=True); \
-snapshot_download('Aero-Ex/Pixal3D-GGUF', local_dir='/app/ComfyUI/models/Pixal3D-GGUF', \
-    allow_patterns=['pipeline.json','decoder/*','*Q4_K_M*']); \
-os.makedirs('/app/ComfyUI/models/dinov3', exist_ok=True); \
-snapshot_download('Aero-Ex/Dinov3', local_dir='/app/ComfyUI/models/dinov3'); \
-"
+RUN python3 -c "from huggingface_hub import snapshot_download; import os; os.makedirs('/app/ComfyUI/models/Pixal3D-GGUF', exist_ok=True); snapshot_download('Aero-Ex/Pixal3D-GGUF', local_dir='/app/ComfyUI/models/Pixal3D-GGUF', allow_patterns=['pipeline.json','decoder/*','*Q4_K_M*']); os.makedirs('/app/ComfyUI/models/dinov3', exist_ok=True); snapshot_download('Aero-Ex/Dinov3', local_dir='/app/ComfyUI/models/dinov3')"
 
 COPY . /app
 
