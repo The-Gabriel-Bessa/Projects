@@ -73,8 +73,9 @@ def _run_comfy(image_path, prefix):
     out = subprocess.run(
         ["comfy", "run", "--workflow", tmp, "--wait", "--timeout", "1800"],
         capture_output=True, text=True, timeout=1800)
+    combined = (out.stdout or "") + "\n" + (out.stderr or "")
     if out.returncode != 0:
-        raise RuntimeError("comfy run failed:\n" + out.stderr[-3000:])
+        raise RuntimeError("comfy run failed (rc=%d):\n%s" % (out.returncode, combined[-4000:]))
     candidates = []
     for d in (Path(COMFY_OUT), Path(OUTPUT_DIR)):
         for c in d.rglob("*.glb"):
