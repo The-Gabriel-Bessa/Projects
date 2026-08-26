@@ -70,16 +70,18 @@ def _run_comfy(image_path, prefix):
     _build_workflow(image_name, prefix, tmp)
     start = time.time()
     out = subprocess.run(
-        ["comfy", "run", "--workflow", tmp, "--output-folder", OUTPUT_DIR],
+        ["comfy", "run", "--workflow", tmp, "--wait", "--timeout", "1800"],
         capture_output=True, text=True, timeout=1800)
     if out.returncode != 0:
         raise RuntimeError("comfy run failed:\n" + out.stderr[-3000:])
-    candidates = list(Path(OUTPUT_DIR).rglob("*.glb")) + \
-        list(Path(COMFY_OUT).rglob(f"{prefix}_*.glb"))
-    glbs = sorted((c for c in candidates if c.is_file() and c.stat().st_mtime >= start),
-                  key=lambda p: p.stat().st_mtime)
+    candidates = []
+    for d in (Path(COMFY_OUT), Path(OUTPUT_DIR)):
+        for c in d.rglob("*.glb"):
+            if c.is_file() and c.stat().st_mtime >= start:
+                candidates.append(c)
+    glbs = sorted(candidates, key=lambda p: p.stat().st_mtime)
     if not glbs:
-        raise RuntimeError("no glb produced; comfy output:\n" + out.stdout[-2000:])
+        raise RuntimeError("no glb produced; comfy output:\n" + (out.stdout or out.stderr)[-2000:])
     return glbs[-1]
 
 
