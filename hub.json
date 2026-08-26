@@ -1,0 +1,14 @@
+{
+  "name": "pixal3d-trellis2-mesh",
+  "type": "serverless",
+  "config": {
+    "containerImageName": "thegabrielbessa/pixal3d-trellis2:latest",
+    "containerDiskInGb": 50,
+    "gpuTypes": [
+      "NVIDIA GeForce RTX 4090"
+    ],
+    "allowedCudaVersions": [
+      "12.4"
+    ]
+  }
+}
